@@ -1,0 +1,1 @@
+# smartnet-static-site
