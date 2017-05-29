@@ -13,7 +13,7 @@ For Arch Linux:
 ```
 $ sudo pacman -S xl2tpd
 ```
-Install [strongswan from the AUR](https://aur.archlinux.org/packages/strongswan/)
+Install [strongswan from the AUR](https://aur.archlinux.org/packages/strongswan/).
 
 ## Configure
 
@@ -23,9 +23,9 @@ Install [strongswan from the AUR](https://aur.archlinux.org/packages/strongswan/
  3. `/etc/xl2tpd/xl2tpd.conf`: This file configures `xl2tpd` with the connection name, server IP address.
  4. `/etc/ppp/options.l2tpd.client`: This file configures `pppd`.
  
- ### ipsec.conf
+### ipsec.conf
  
- Use the following config, replacing `yyy.yyy.yyy.yyy` with the Meraki node outside address and `my-unique-vpn-conn-name` with a connection name of your choice.
+Use the following config, replacing `yyy.yyy.yyy.yyy` with the Meraki node outside address and `my-unique-vpn-conn-name` with a connection name of your choice.
  
  ```
  $ sudo vim /etc/ipsec.conf
