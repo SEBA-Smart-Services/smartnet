@@ -50,7 +50,6 @@ conn my-unique-vpn-conn-name
      rightprotoport=17/1701
      # set this to the outside IP address of your Meraki VPN node
      right=yyy.yyy.yyy.yyy
-
 ```
 
 ### ipsec.secrets
@@ -59,7 +58,6 @@ conn my-unique-vpn-conn-name
  $ sudo vim /etc/ipsec.secrets
 
 : PSK "IPsec PSK secret goes here including quotation marks."
-
 ```
 
 ### xl2tpd.conf
@@ -75,7 +73,6 @@ lns = yyy.yyy.yyy.yyy
 ppp debug = yes 
 pppoptfile = /etc/ppp/options.l2tpd.client
 length bit = yes
-
 ```
 
 ### options.l2tpd.client
@@ -100,7 +97,6 @@ debug
 connect-delay 5000
 name meraki-username
 password meraki-password
-
 ```
 
 ## Restart services
@@ -108,7 +104,6 @@ password meraki-password
 ```
 $ sudo systemctl restart strongswan
 $ sudo systemctl restart xl2tpd
-
 ```
 
 ## Connect
@@ -123,14 +118,12 @@ sending packet: from xxx.xxx.xxx.xxx[500] to yyy.yyy.yyyy.yyy[500] (212 bytes)
 received packet: from yyy.yyy.yyyy.yyy[500] to xxx.xxx.xxx.xxx[500] (156 bytes)
 ...
 connection 'my-unique-vpn-conn-name' established successfully
-
 ```
 
 Start the L2TP connection:
 ```
 $ su
 # echo "c my-unique-vpn-conn-name" > /var/run/xl2tpd/l2tp-control
-
 ```
 
 ## Add routes
@@ -145,7 +138,6 @@ $ ip link
 Add a route to the VPN inside network through the ppp tunnel.
 ```
 $ ip route add zzz.zzz.zzz.zzz/zzz dev ppp0
-
 ```
 
 You should now have access to the Meraki node inside LAN.
@@ -159,7 +151,6 @@ $ sudo ipsec down my-unique-vpn-conn-name
 closing CHILD_SA my-unique-vpn-conn-name...
 ...
 IKE_SA [...] closed successfully
-
 ```
 
 ## References
