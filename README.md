@@ -7,6 +7,7 @@ The network is arranged in a site-to-site [hub-and-spoke topology](http://www.ci
 ## Client VPN configuration
 
  * [Linux](linux-ipsec-client.md)
+ * [BATMAN MESH NETWORK](batman_mesh_network/README.md)
  * Non-Linux: For now, get started using the [Meraki Client VPN OS Configuration document](https://documentation.meraki.com/MX-Z/Client_VPN/Client_VPN_OS_Configuration). Better docs added as a TODO.
 
 ## TODO:
