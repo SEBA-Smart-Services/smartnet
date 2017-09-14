@@ -139,7 +139,7 @@ First test that a reverse ssh tunnel from ssh server to router works:
   ssh localhost -p 15001
   ```
 
-  This should successfully present an ssh terminal to the router.
+  You should now have an ssh terminal into the router from the ssh server.
   
 ## Enable persistent reverse tunnel
 
