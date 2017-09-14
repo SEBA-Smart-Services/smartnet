@@ -9,3 +9,6 @@ Smartnet wireless mesh is an ad hoc wireless mesh topology. The topology is scal
 - [Setup instructions](setup.md)
 - Troubleshooting:
     * [Remote troubleshooting using reverse ssh tunnel over 3G connection](3g_reverse_ssh_test.md)
+    
+## TODO
+- Additional security by forcing IPsec IKEv2 PSK (using [strongSwan](https://www.strongswan.org/)) tunnels between batman-adv peers.
