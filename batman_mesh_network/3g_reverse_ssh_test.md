@@ -28,7 +28,7 @@ In this example, we will set up a persistent reverse ssh tunnnel to an internet 
 Most of these settings should work for any Australian SIM card, just modify the APN option to suit the vendor.
   
 3. Reboot
-4. ssh back in and check internet connection, eg `ping google.com`. If no connection, check `logread` for hints, for example, he following output indicates a connection is established but the APN/authentication is incorrect and the provider terminates:
+4. ssh back in and check internet connection, eg `ping google.com`. If no connection, check `logread` for hints, for example, the following output indicates a connection is established but the APN/authentication is incorrect and the provider terminates:
 
   ```
   Wed Sep  6 17:43:02 2017 daemon.info pppd[22863]: Serial connection established.
@@ -42,15 +42,15 @@ Most of these settings should work for any Australian SIM card, just modify the 
   ```
 
 ## Deploy the ssh server
-An internet accessible SSH server is required for each router to establish a reverse SSH tunnel with. An AWS EC2 instance can be deployed and configured as an SSH server in under 30 minutes. The EC2 instance has the following configuration:
-- Instance type: t2.nano, the smallest and cheapest at time of writing (AU$0.008/hr, 0.5GB memory, 1vCPU)
+An internet accessible SSH server is required for each router to establish a persistent reverse SSH tunnel with. An AWS EC2 instance can be deployed and configured as an SSH server in under 30 minutes. The example EC2 instance has the following configuration:
+- Instance type: t2.nano, the smallest and cheapest instance to run (at time of writing AU$0.008/hr, 0.5GB memory, 1vCPU)
 - OS: Arch Linux, nice and lightweight, can easily run on t2.nano. Standard Ubuntu will work too but is much more resource heavy.
 
 1. If using Arch Linux, deploy the [AMI from here](https://www.uplinklabs.net/projects/arch-linux-on-ec2/). If using a standard AWS image, such as Ubuntu, select it from the first page of the new EC2 instance wizard.
 2. Follow the EC2 instance wizard, selecting the desired instance type (eg t2.nano).
 3. Download SSH keys when prompted and keep safe.
 4. Assign an elastic IP address to the server.
-5. For security, the SSH port will be changed from default 22 to a free port of your choice, eg 12206. Modify the security group to allow the additional incoming TCP port for ssh. Each reverse tunnel from the routers will need to be proxied through to another TCP port. For example, the range TCP 15001-15010 for 10 routers, open these incoming ports too.
+5. Configure EC2 Security Group. For security, the SSH port will be changed from default 22 to a free port of your choice, eg 12206. Modify the security group to allow the additional incoming TCP port for ssh. Each reverse tunnel from the routers will need to be proxied through to another TCP port. For example, the range TCP 15001-15010 for 10 routers, open these incoming ports too.
 6. Once the EC2 instance is running, SSH onto the server:
 
   ```
@@ -60,6 +60,7 @@ An internet accessible SSH server is required for each router to establish a rev
   ssh -i [your private key] ubuntu@[your elastic IP address]
   ```
   
+  or PuTTY equivalent on Windows.
 7. Modify the sshd_config to accept connections from your non default port:
 
 ```
@@ -80,6 +81,7 @@ Save, close and retsart sshd:
   ssh -i [your private key] root@[your elastic IP address]:[your custom ssh port, eg 12206]
   ```
   
+  or PuTTY equivalent on Windows.
 9. Exit
 
 ## Create ssh keys for mesh router and add to ssh server
