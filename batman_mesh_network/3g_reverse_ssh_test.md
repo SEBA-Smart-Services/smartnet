@@ -123,12 +123,34 @@ OpenWrt runs `dropbear`, a lightweight implementation of `ssh`. Some additional 
   ssh -i [your private key] ubuntu@[your elastic IP address]:[your custom ssh port]
   ```
   
-  ## Configure the reverse ssh tunnel
-  First test that a reverse ssh tunnel from ssh server to router works:
-  1. On the router, run:
-    ```
-    ssh -fNT -R 15001:localhost:22 root@[your elastic IP address]/[your custom ssh port]
-    ```
-    the 
+## Configure the reverse ssh tunnel
+  
+### Test reverse ssh tunnel
+First test that a reverse ssh tunnel from ssh server to router works:
+1. On the router whose reverse tunnel entrance will be proxied on the ssh server on port 15001, run:
+
+  ```
+  ssh -fNT -R 15001:localhost:22 root@[your elastic IP address]/[your custom ssh port]
+  ```
+
+2.  On the ssh server, run:
+
+  ```
+  ssh localhost -p 15001
+  ```
+
+  This should successfully present an ssh terminal to the router.
+  
+## Enable persistent reverse tunnel
+
+1. ssh onto the router.
+2. Install autossh
+  
+  ```
+  opkg update
+  opkg install autossh
+  ```
+  
+TODO: finish instructions
   
   
