@@ -72,3 +72,20 @@ for n, conn in enumerate(netstat):
         # check if local port in TUNNEL_PORT_RANGE
         if port in map(str, TUNNEL_PORT_RANGE):
             entry = make_log_entry(conn)
+            lines_of_interest.append(n)
+
+# if any relevant entries in netstat table, make formatted table for log entry
+if len(lines_of_interest) > 0:
+    table_of_interest = netstat_raw.splitlines()[1]
+
+    for n in lines_of_interest:
+        table_of_interest = '\n'.join([
+            table_of_interest,
+            netstat_raw.splitlines()[n + skip_lines]
+        ])
+    entry = '\n' + table_of_interest
+else:
+    entry = "No connections"
+
+# write result to log
+logger.info(entry)
