@@ -153,6 +153,15 @@ First test that a reverse ssh tunnel from ssh server to router works:
   opkg install autossh
   ```
   
-TODO: finish instructions
-  
-  
+TODO: finish autossh instructions
+
+## OPTIONAL: monitor reverse ssh tunnel status
+A script can run on the ssh server to monitor the status reverse ssh tunnel connections. 
+
+A working [python 2 script can be found here](https://github.com/SEBA-Smart-Services/smartnet/blob/master/batman_mesh_network/util/reverse_ssh_monitor.py). This script writes the reverse ssh tunnel connections to a logfile in `/var/log/reverse-ssh-monitor`. This script can be put into `/opt` and executed on a schedule using cron. Example crontab entry as follows:
+
+```
+*/30 * * * * /usr/bin/python2 /opt/reverse_ssh_monitor.py
+```
+
+TODO: enhance script to send emails and/or Pushover notifications if connections drop out.
