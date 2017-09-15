@@ -1,12 +1,24 @@
-## BATMAN MESH NETWORK SETUP
+# SmartNet wireless mesh node setup
 
-Instructions for setting up a simple batman mesh network, specifically for the hyrax PCP-105. If you run into any difficulties or require further details please refer to intellidesign user reference manual for hyrax PCP-105 (DOC: HYR03001).
+These instructions take new users through the process of setting up the wireless mesh network using BATMAN. The simple batman mesh network, was created for the hyrax PCP-105 running OpenWrt version xxxx. If you run into any difficulties or require further details please refer to intellidesign user reference manual for hyrax PCP-105 (DOC: HYR03001).
 
-### Setup
-1. Connect power, antenna and ethernet cable (eth0) to device.
-1. SSH into device (using PuTTY) through ethernet IP address.
-    1. Ensure the fixed *ethernet network IP* of current device matches that of the one you are trying to connect to (see IP settings below for more details).
+## OpenWrt Device
+
+### Basic Setup
+1. Connect power (DC power supply at least 3W), antenna and ethernet cable (eth0) to device.
+1. SSH into device (using PuTTY) either through ethernet or wifi (any network changes made to the current connection will result in a loss in connection)
+    1. If connecting through ethernet, plug the ethernet cable into either eth0 or eth1 on the hyreax device. Through putty connect to the  default IP address which is 192.168.1.1. The username and password for the device are root and openwrt respectively.
+        1. Ensure the fixed *ethernet network IP* of current device matches that of the one you are trying to connect to (see IP settings below for more details).
+    1. If using Wifi connect network ID `Intellidesign.FP2`, the password is `MyPASSWORD`, the default wifi IP to use for putty is 192.168.2.1. Similarly to above accept the authentication key and then password and username.
+        1. Deafult IP can be used to access web config user interface through any web browser. login details are `root` and the password is `operwrt`
+    1. An alternative method is connecting through USB, please refer to hyrax manual for more information.
+
+1. Once connected to the device it is a good idea to change the default network values, this can be done through either UCI or the web UI.
+    1. Using the command line you can either type in the commands directly or edit file, however once the files have been updated you will need to reboot the device.
 1. Change directories to the *"etc/config"* file (from PuTTY login type `cd ../etc/config`).
+
+### Configure batman-adv using UCI
+
 1. Type in the following commands to configure the *"batman-adv"* file (or manually change the values by using `vim batman-adv`, *see vim commands below for additional help*).
     1. `uci set batman-adv.bat0=mesh`
     1. `uci set batman-adv.bat0.mesh_iface=wlan0`
@@ -30,24 +42,64 @@ Instructions for setting up a simple batman mesh network, specifically for the h
     1. `sync`
     1. `/etc/init.d/batman-adv restart`
 1. Verify changes have been made by checking the file `vim batman-adv` or running `ifconfig` and looking at the details in bat0 network.
-1. Next edit the *"wireless"* folder by editing using vim `vim wireless` (*see Vim commands section below for help*).
-    1. Under the ***config wifi-device*** section change 'wlan0' to 'radio0'.
+
+### Configure Wireless Interface
+Now that the batman configuration has been set we need to update a few files on the device.
+
+1. First edit the *"wireless"* folder by editing using vim `vim wireless`.
+    1. Under the ***config wifi-device*** section change 'wlan0' to 'radio0' and set up as follows.
+        ```
+            option type 'mac80211'
+            option path 'pci0000:00/0000:00:17.0/0000:01:00.0'
+            list ht_capab 'SHORT-GI-20'
+            list ht_capab 'SHORT-GI-40'
+            list ht_capab 'DSSS_CCK-40'
+            option htmode 'HT40'
+            option disabled '0'
+            option channel '9'
+            option hwmode '11g'
+            option txpower '22'
+            option country 'AU'
+        ```
     1. in the next section (***config wifi-iface***) make the following changes
         ```
-        config wifi-iface 'wmesh'
+        config wifi-iface
             option device 'radio0' (needs to match ***config wifi-device***)
-            option network 'batnet' (can be called with whatever you want as long as they match up with all devices on mesh and network file)
+            option ifname 'mesh0'
+            option network 'mesh' (can be called with whatever you want as long as they match up with all devices on mesh and network file)
             option mode 'adhoc'
             option ssid 'mesh' (can be called whatever you want as long as they match up with all devices on mesh)
-            option bssid '02:CA:FE:CA:CA:40'
+            option bssid '02:CA:FE:CA:CA:40' (Can also be chosen but needs to be either numbers of letters between a and f)
+            option encrytion 'none'
+            option mcast_rate '18000'
         ```
     1. Save changes and exit
-1. Finally edit the *"network"* file adn add the following configuration:
+1. Now edit the *"network"* file and add the following configurations:
     ```
-    config interface 'batnet'
+    config interface 'loopback'
+        option ifname 'lo'
+        option proto 'static'
+        option ipaddr '127.0.0.1'
+        option netmask '255.0.0.0'
+        
+    config interface 'mesh'
         option mtu '1532'
-        option proto 'batadv'
-        option mesh 'bat0'
+        option proto 'none
+        option mesh 'mesh0'
+    ```
+1. We also need to create a bridge network on each router to allow for communications between the mesh and the outside. A bridge network creates a join between 2 networks which in this case will be between the batman network created earlier and the lan network already present on the routers. To create this bridge add the following configs to the *"network"* file.
+    ```
+    config globals 'globals'
+        option ula_prefix 'fd73:8606:3736::/48
+        
+    config interface 'lan'
+        option proto 'static'
+        option ipaddr '192.168.1.221'
+        option netmask '255.255.255.0'
+        option gateway '192.168.1.1'
+        option dns '8.8.8.8'
+        option ifname 'eth0 bat0'
+        option type 'bridge
     ```
 1. Save all settings, restart network and batman-adv:
     ```
@@ -56,6 +108,94 @@ Instructions for setting up a simple batman mesh network, specifically for the h
     /etc/init.d/network restart
     /etc/init.d/batman-adv restart
     ```
+    
+### Sample Configuration
+
+With the configuration setup complete the files should look similar to the following.
+
+#### /etc/config/network:
+    config interface 'loopback'
+        option ifname 'lo'
+        option proto 'static'
+        option ipaddr '127.0.0.1'
+        option netmask '255.0.0.0'
+
+    config globals 'globals'
+            option ula_prefix 'fd73:8606:3736::/48'
+
+    config interface 'lan'
+            option proto 'static'
+            option ipaddr 'xxx.xxx.xxx.xxx' (Set to desired IP should be unique for network)
+            option netmask 'xxx.xxx.xxx.xxx' (Set to desired subnet, should be same for all devices)
+            option gateway 'xxx.xxx.xxx.xxx' (Set to gateway for network)
+            option dns 'xxx.xxx.xxx.xxx' (Set to network domain name server)
+            option ifname 'eth0 bat0'
+            option type 'bridge'
+
+    config interface 'mesh'
+            option mtu '1532'
+            option proto 'none'
+            option ifname 'mesh0'
+
+#### /etc/config/system:
+    config system
+        option hostname 'ChosenHostName' (Name set by the user)
+        option zonename 'Australia/Brisbane'
+        option timezone 'AEST-10'
+        option conloglevel '8'
+        option cronloglevel '8'
+
+    config timeserver 'ntp'
+            list server '0.au.pool.ntp.org'
+            list server '1.au.pool.ntp.org'
+            list server '2.au.pool.ntp.org'
+            list server '3.au.pool.ntp.org'
+            option enabled '1'
+            option enable_server '0'
+
+#### /etc/config/wireless:
+    config wifi-device 'radio0'
+        option type 'mac80211'
+        option path 'pci0000:00/0000:00:17.0/0000:01:00.0'
+        list ht_capab 'SHORT-GI-20'
+        list ht_capab 'SHORT-GI-40'
+        list ht_capab 'DSSS_CCK-40'
+        option htmode 'HT40'
+        option disabled '0'
+        option channel '9'
+        option hwmode '11g'
+        option txpower '22'
+        option country 'AU'
+
+    config wifi-iface
+        option device 'radio0'
+        option ifname 'mesh0'
+        option network 'mesh'
+        option mode 'adhoc'
+        option ssid 'ChosenSSID' (SSID set by user)
+        option bssid 'xx:xx:xx:xx:xx:xx' (BSSID created by user)
+        option encryption 'none'
+        option mcast_rate '18000'
+
+#### /etc/config/batman-adv:
+    config mesh 'bat0'
+            option mesh_iface 'mesh0'
+            option ap_isolation '0'
+            option bonding '0'
+            option fragmentation '1'
+            option gw_mode 'client'
+            option gw_sel_class '20'
+            option orig_interval '1000'
+            option bridge_loop_avoidance '1'
+            option hop_penalty '255'
+            option isolation_mark '0x00000000/0x00000000'
+            option routing_algo 'BATMAN_IV'
+            option aggregated_ogms '0'
+            option gw_bandwidth '10000'
+            option ip 'xxx.xxx.xxx.xxx' (IP used for batman network)
+            option mask 'xxx.xxx.xxx.xxx' (Subnet masked used for batman network, should be same for all devices)
+            option enable '1'
+
 
 ### Testing connection
 Once everything is connected you can test the mesh network by pinging devices on the network (requires at least two active devices on the network).
@@ -81,16 +221,6 @@ The following explains how to check your IP in a windows environment
         1. Right-click Local area network and select properties.
         1. Double click IPv4.
         1. Select use the following IP address and use a custom IP that has the same network IP and subnet mask (the custom part of the address can take any number between 1 and 254 as long as it doesn't conflict with any other device on the network).
-
-### Vim commands
-Some basic vim commands:
-  1. Press **ESC** to enter command mode
-      1. `:w` to save changes
-      1. `:q` to exit vim
-      1. `:wq` to save and exit
-  1. Press **i** to enter insert mode where you can start editing the program (should say --insert-- down the bottom of terminal)
-  1. Do not press **ctrl+s** as this enters a "freeze" mode, if accidentally pressed use **ctrl+q** to unfreeze.
-  1. use **dd** to delete a single line.
 
 ### Trouble shooting
 If you can no longer access device through Ethernet or WIFI, try using serial (USB) to connect.
