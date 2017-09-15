@@ -40,6 +40,14 @@ Most of these settings should work for any Australian SIM card, just modify the 
   Wed Sep  6 17:43:05 2017 daemon.info pppd[22863]: Exit.
   Wed Sep  6 17:43:05 2017 daemon.notice netifd: Interface 'ppp0' is now down
   ```
+  
+  The following command will verify if a connection can be established with the provider:
+  
+  ```
+  # gcom -d /dev/ttyUSBx
+  ```
+  
+  For more troubleshooting steps, visit the [OpenWrt documentation on 3G/UMTS](https://wiki.openwrt.org/doc/recipes/3gdongle#debugging_signal_strength_issues).
 
 ## Deploy the ssh server
 An internet accessible SSH server is required for each router to establish a persistent reverse SSH tunnel with. An AWS EC2 instance can be deployed and configured as an SSH server in under 30 minutes. The example EC2 instance has the following configuration:
