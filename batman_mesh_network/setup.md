@@ -7,7 +7,7 @@ These instructions take new users through the process of setting up the wireless
 ### Basic Setup
 1. Connect power (DC power supply at least 3W), antenna and ethernet cable (eth0) to device.
 1. SSH into device (using PuTTY) either through ethernet or wifi (any network changes made to the current connection will result in a loss in connection)
-    1. If connecting through ethernet, plug the ethernet cable into either eth0 or eth1 on the hyreax device. Through putty connect to the  default IP address which is 192.168.1.1. The username and password for the device are root and openwrt respectively.
+    1. If connecting through ethernet, plug the ethernet cable into either eth0 or eth1 on the hyreax device. Through putty connect to the  default IP address which is 192.168.1.1. The username and password for the device are `root` and `openwrt` respectively.
         1. Ensure the fixed *ethernet network IP* of current device matches that of the one you are trying to connect to (see IP settings below for more details).
     1. If using Wifi connect network ID `Intellidesign.FP2`, the password is `MyPASSWORD`, the default wifi IP to use for putty is 192.168.2.1. Similarly to above accept the authentication key and then password and username.
         1. Deafult IP can be used to access web config user interface through any web browser. login details are `root` and the password is `operwrt`
@@ -27,26 +27,26 @@ These instructions take new users through the process of setting up the wireless
     /etc/init.d/network restart
     ```
     1. We do not need to worry about changing the wireless section as once the changes made later on in this setup the wireless option will no longer be available.
-1. Next we will need to update the password (and username if desired)
+1. Next we will need to update the password (and username if desired). The easiest method for this would be to access the device through the web interface. Open up a new browser and type 192.168.2.1 if connected by wlan (wireless) or your new IP address if connected via lan into the address bar. login using the `root` and `openwrt` logins and navigate to the *'System'* tab. From here you should see an option to change password, ensure to use a strong password, once changed click *'save and apply'*. The system should reboot and after 30 seconds take you back to the login screen.
     
 ### Configure batman-adv using UCI
 Next we are going to configure the batman mesh network that the routers will communicate over. We will do this part using UCI commands however an easier method may be to manually change the file contents by using `vim batman-adv` and changing the corresponding settings
 
 1. Type in the following commands to configure the *"batman-adv"* file.
     1. `uci set batman-adv.bat0=mesh`
-    1. `uci set batman-adv.bat0.mesh_iface=wlan0`
+    1. `uci set batman-adv.bat0.mesh_iface=mesh0`
     1. `uci set batman-adv.bat0.ap_isolation=0`
     1. `uci set batman-adv.bat0.bonding=0`
     1. `uci set batman-adv.bat0.fragmentation='1'`
     1. `uci set batman-adv.bat0.gw_sel_class='20'`
-    1. `uci set batman-adv.bat0.orig_interval`
-    1. `uci set batman-adv.bat0.bridge_loop_avoidance='0'`
-    1. `uci set batman-adv.bat0.hop_penalty='15'`
+    1. `uci set batman-adv.bat0.orig_interval '1000'`
+    1. `uci set batman-adv.bat0.bridge_loop_avoidance='1'`
+    1. `uci set batman-adv.bat0.hop_penalty='255'`
     1. `uci set batman-adv.bat0.isolation_mark='0x00000000/0x00000000'`
     1. `uci set batman-adv.bat0.routing_algo='BATMAN_IV'`
-    1. `uci set batman-adv.bat0.aggregated_ogms='1'`
+    1. `uci set batman-adv.bat0.aggregated_ogms='0'`
     1. `uci set batman-adv.bat0.gw_bandwidth='10000'`
-    1. `uci set batman-adv.bat0.ip=xxx.xxx.xxx.xxx` set the devices IP address for the mesh network (needs to be unique.
+    1. `uci set batman-adv.bat0.ip=xxx.xxx.xxx.xxx` set the devices IP address for the mesh network (needs to be unique).
     1. `uci set batman-adv.bat0.mask=xxx.xxx.xxx.xxx` set the mask for the device (make sure it is the same for all devices).
     1. `uci set batman-adv.bat0.gw_mode=client` set to be either "server" or "client" depending on whether the particular device needs to be able to communicate with the internet (server) or not (client).
     1. `uci set batman-adv.bat0.enable=1`
@@ -219,6 +219,12 @@ Once everything is connected you can test the mesh network by pinging devices on
     1. This will show the path taken to reach the device you are trying to communicate with.
     1. \* means unresponsive and !H  means unreachable.
 1. If there is no response check the antena on both devices are connected properly, if it is then double check your configuration set up on the device. If it is still not working please refer to the document mentioned at the top or visit the following link [BATMAN MESH NETWORK](https://www.open-mesh.org/projects/batman-adv/wiki/Batman-adv-openwrt-config).
+
+1. To test the bridge connection set up a device on one of the routers through lan.
+1. try to ping another router on the mesh or device connected via lan to a seperate device. 
+1. If the bridge has been set up correctly you should see a responce from the other device.
+1. If there is no responce make sure all connections are correct and that each router has been setup correctly.
+    1. Ensure subnets are configured so that the devices can talk to each other and test connections between each device.
 
 ### IP settings
 The following explains how to check your IP in a windows environment
