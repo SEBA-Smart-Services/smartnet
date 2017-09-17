@@ -16,10 +16,23 @@ These instructions take new users through the process of setting up the wireless
 1. Once connected to the device it is a good idea to change the default network values, this can be done through either UCI or the web UI.
     1. Using the command line you can either type in the commands directly or edit file, however once the files have been updated you will need to reboot the device.
 1. Change directories to the *"etc/config"* file (from PuTTY login type `cd ../etc/config`).
-
+1. To update the lan IP address go vim into the **network** file and under 'lan' section update the following fields
+        ```
+        option ipaddr '192.168.1.221' (Set to desired IP which should be unique for network)
+        option netmask '255.255.255.0' (Set to desired subnet, should be same for all devices)
+        ```
+    1. NOTE: If you are connected via ethernet to the router once you save and reboot you wont be able to access the router, you will need to update the putty config and possibly update your own fixed IP depending on choice of IP. Save the changes made then from the command line type:
+    ```
+    sync
+    /etc/init.d/network restart
+    ```
+    1. We do not need to worry about changing the wireless section as once the changes made later on in this setup the wireless option will no longer be available.
+1. Next we will need to update the password (and username if desired)
+    
 ### Configure batman-adv using UCI
+Next we are going to configure the batman mesh network that the routers will communicate over. We will do this part using UCI commands however an easier method may be to manually change the file contents by using `vim batman-adv` and changing the corresponding settings
 
-1. Type in the following commands to configure the *"batman-adv"* file (or manually change the values by using `vim batman-adv`, *see vim commands below for additional help*).
+1. Type in the following commands to configure the *"batman-adv"* file.
     1. `uci set batman-adv.bat0=mesh`
     1. `uci set batman-adv.bat0.mesh_iface=wlan0`
     1. `uci set batman-adv.bat0.ap_isolation=0`
@@ -33,7 +46,7 @@ These instructions take new users through the process of setting up the wireless
     1. `uci set batman-adv.bat0.routing_algo='BATMAN_IV'`
     1. `uci set batman-adv.bat0.aggregated_ogms='1'`
     1. `uci set batman-adv.bat0.gw_bandwidth='10000'`
-    1. `uci set batman-adv.bat0.ip=xxx.xxx.xxx.xxx` set the devices IP address for the mesh network.
+    1. `uci set batman-adv.bat0.ip=xxx.xxx.xxx.xxx` set the devices IP address for the mesh network (needs to be unique.
     1. `uci set batman-adv.bat0.mask=xxx.xxx.xxx.xxx` set the mask for the device (make sure it is the same for all devices).
     1. `uci set batman-adv.bat0.gw_mode=client` set to be either "server" or "client" depending on whether the particular device needs to be able to communicate with the internet (server) or not (client).
     1. `uci set batman-adv.bat0.enable=1`
@@ -94,8 +107,6 @@ Now that the batman configuration has been set we need to update a few files on 
         
     config interface 'lan'
         option proto 'static'
-        option ipaddr '192.168.1.221'
-        option netmask '255.255.255.0'
         option gateway '192.168.1.1'
         option dns '8.8.8.8'
         option ifname 'eth0 bat0'
@@ -103,7 +114,6 @@ Now that the batman configuration has been set we need to update a few files on 
     ```
 1. Save all settings, restart network and batman-adv:
     ```
-    uci commit
     sync
     /etc/init.d/network restart
     /etc/init.d/batman-adv restart
