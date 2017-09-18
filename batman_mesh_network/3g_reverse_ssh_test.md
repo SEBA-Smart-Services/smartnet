@@ -161,7 +161,23 @@ First test that a reverse ssh tunnel from ssh server to router works:
   opkg install autossh
   ```
   
-TODO: finish autossh instructions
+3. Put [this startup script](https://github.com/SEBA-Smart-Services/smartnet/blob/master/batman_mesh_network/util/reversessh.init) in `/etc/init.d/reversessh`.
+4. Enable cron: ` # /etc/init.d/cron/enable`
+5. Edit crontab with an entry to start the service on a schedule, eg for 5 every minutes:
+  
+  ```
+  # crontab -e
+  */5 * * * * /etc/init.d/reversessh start
+  ```
+  
+6. Test by starting cron: ` # /etc/init.d/cron/start`
+7. Wait until schedule executes and check service:
+
+  ```
+  # ps |grep ssh
+   3024 root       652 S    /usr/bin/autossh -M 0    -nNT -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R
+   3025 root       868 S    /usr/bin/ssh -nNT -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R 15002:localh
+  ```
 
 ## OPTIONAL: monitor reverse ssh tunnel status
 A script can run on the ssh server to monitor the status reverse ssh tunnel connections. 
