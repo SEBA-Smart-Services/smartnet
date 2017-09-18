@@ -1,0 +1,53 @@
+#!/bin/sh /etc/rc.common
+# reversessh.init
+# autossh reverse ssh tunnel init script for OpenWrt
+#
+# Warning:
+# this works when manually started, ie:
+#  /etc/init.d/reversessh start
+# but fails when executed at boot using init.d enable or rc.local
+# havent figured out why? Instead start the service on a schedule using cron, eg:
+#  */5 * * * * /etc/init.d/reversessh start
+# it wont break an existing successful connection if started
+#
+# Copyright (C) 2017 Schneider Electric / Clive Gross
+
+START=98
+STOP=98
+
+NAME=autossh
+TUNNEL_PORT=5002
+TUNNEL_HOST=root@52.65.78.188
+HOST_PORT=5226
+AUTOSSH_GATETIME=0
+export AUTOSSH_GATETIME
+PRIVATE_KEY=/root/.ssh/id_dropbear
+
+DAEMON=/usr/bin/$NAME
+DAEMON_ARGS=" -M 0 -f -nNT -i $PRIVATE_KEY -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R $TUNNEL_PORT:localhost:22 $TUNNEL_HOST -p $HOST_PORT"
+PIDFILE=/var/run/$NAME.pid
+export AUTOSSH_PIDFILE=$PIDFILE
+
+
+start() {
+        echo starting autossh reverse ssh tunnel to server
+        # commands to launch application
+        #start-stop-daemon -S -q -x $DAEMON -t > /dev/null || return 1
+        echo $DAEMON $DAEMON_ARGS
+        start-stop-daemon -S -q -x $DAEMON -- $DAEMON_ARGS || return 2
+
+}
+
+stop() {
+        echo stopping reverse ssh tunnel to server
+        # commands to kill application
+        start-stop-daemon -K -q -p $PIDFILE -n $NAME
+        RETVAL="$?"
+        [ "$RETVAL" = 2 ] && return 2
+        start-stop-daemon -K -q -x $DAEMON
+        [ "$?" = 2 ] && return 2
+        # Many daemons don't delete their pidfiles when they exit.
+        rm -f $PIDFILE
+        return "$RETVAL"
+
+}
