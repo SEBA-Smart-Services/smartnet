@@ -193,6 +193,11 @@ First test that a reverse ssh tunnel from ssh server to router works:
    3024 root       652 S    /usr/bin/autossh -M 0    -nNT -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R
    3025 root       868 S    /usr/bin/ssh -nNT -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R 15002:localh
   ```
+8.  You should now be able to persistently access the router from the ssh server:
+
+  ```
+  ssh localhost -p 15001
+  ```
 
 ## OPTIONAL: monitor reverse ssh tunnel status
 A script can run on the ssh server to monitor the status reverse ssh tunnel connections. 
