@@ -7,6 +7,13 @@ During FATs and SATs, it may be useful to create a temporary 3G internet connect
 There are a number of remote access methods, such as a persistent IPsec (using Strongswan) or OpenVPN to a VPN server.
 In this example, we will set up a persistent reverse ssh tunnnel to an internet connected ssh server.
 
+This is about 1 hours work, comprising of the following steps:
+1. Configure the 3G connection on the routers.
+2. Create and configure the ssh server.
+3. Create public-private ssh keys for the routers to authenticate with the ssh server.
+4. Test reverse ssh tunnel from router to ssh server
+5. Create persistent reverse ssh tunnel on routers using autossh and init script
+
 ## Configure 3G connection on router
 1. Insert SIM card as per hardware documentation.
 2. ssh onto the router and configure the network interface, for example, for an Optus pre-paid 4G SIM card:
