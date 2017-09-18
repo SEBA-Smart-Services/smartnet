@@ -16,9 +16,9 @@ START=98
 STOP=98
 
 NAME=autossh
-TUNNEL_PORT=5002
-TUNNEL_HOST=root@52.65.78.188
-HOST_PORT=5226
+TUNNEL_PORT=[your reverse ssh tunnel proxy port on server]
+TUNNEL_HOST=root@[your server address]
+HOST_PORT=22
 AUTOSSH_GATETIME=0
 export AUTOSSH_GATETIME
 PRIVATE_KEY=/root/.ssh/id_dropbear
