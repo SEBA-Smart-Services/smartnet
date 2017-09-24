@@ -1,6 +1,6 @@
 # SmartNet wireless mesh node setup
 
-These instructions take new users through the process of setting up the wireless mesh network using BATMAN. The simple batman mesh network, was created for the hyrax PCP-105 running OpenWrt version xxxx. If you run into any difficulties or require further details please refer to intellidesign user reference manual for hyrax PCP-105 (DOC: HYR03001).
+These instructions take new users through the process of setting up the wireless mesh network using BATMAN which is accessible via LAN through a bridge connection. The simple batman mesh network, was created for the hyrax PCP-105 running OpenWrt version xxxx. If you run into any difficulties or require further details please refer to intellidesign user reference manual for hyrax PCP-105 (DOC: HYR03001) or the documentation for [Openwrt](https://openwrt.org/).
 
 ## OpenWrt Device
 
@@ -27,7 +27,26 @@ These instructions take new users through the process of setting up the wireless
     /etc/init.d/network restart
     ```
     1. We do not need to worry about changing the wireless section as once the changes made later on in this setup the wireless option will no longer be available.
-1. Next we will need to update the password (and username if desired). The easiest method for this would be to access the device through the web interface. Open up a new browser and type 192.168.2.1 if connected by wlan (wireless) or your new IP address if connected via lan into the address bar. login using the `root` and `openwrt` logins and navigate to the *'System'* tab. From here you should see an option to change password, ensure to use a strong password, once changed click *'save and apply'*. The system should reboot and after 30 seconds take you back to the login screen.
+1. Next we will need to update the password (and username if desired). The easiest method is to type `passwd` into the console once you have SSH in and follow the prompts (enter current password then type new password twice), otherwise you can update it through the web interface. Using the web interface, open up a new browser and type 192.168.2.1 if connected by wlan (wireless) or your new IP address if connected via lan into the address bar. login using the `root` and `openwrt` logins and navigate to the *'System'* tab. From here you should see an option to change password, ensure to use a strong password, once changed click *'save and apply'*. The system should reboot and after 30 seconds take you back to the login screen.
+1. The last thing we need to set up is region and time to do this go you can either use the web interface like before or go to the *"system"* file and set it up like the following:
+    ```
+    config system
+        option hostname 'ChosenHostName' (Name set by the user)
+        option zonename 'Australia/Brisbane'
+        option timezone 'AEST-10'
+        option conloglevel '8'
+        option cronloglevel '8'
+    ```
+    This will set up the correct region and the following syncs the routers time with servers around Australia to keep timing accurate using Network Time Protocol (NTP).
+    ```
+    config timeserver 'ntp'
+        list server '0.au.pool.ntp.org'
+        list server '1.au.pool.ntp.org'
+        list server '2.au.pool.ntp.org'
+        list server '3.au.pool.ntp.org'
+        option enabled '1'
+        option enable_server '0'
+    ```
     
 ### Configure batman-adv using UCI
 Next we are going to configure the batman mesh network that the routers will communicate over. We will do this part using UCI commands however an easier method may be to manually change the file contents by using `vim batman-adv` and changing the corresponding settings
@@ -156,12 +175,12 @@ With the configuration setup complete the files should look similar to the follo
         option cronloglevel '8'
 
     config timeserver 'ntp'
-            list server '0.au.pool.ntp.org'
-            list server '1.au.pool.ntp.org'
-            list server '2.au.pool.ntp.org'
-            list server '3.au.pool.ntp.org'
-            option enabled '1'
-            option enable_server '0'
+        list server '0.au.pool.ntp.org'
+        list server '1.au.pool.ntp.org'
+        list server '2.au.pool.ntp.org'
+        list server '3.au.pool.ntp.org'
+        option enabled '1'
+        option enable_server '0'
 
 #### /etc/config/wireless:
     config wifi-device 'radio0'
